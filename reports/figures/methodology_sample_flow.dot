@@ -1,0 +1,42 @@
+digraph methodology_sample_flow {
+	bgcolor=white dpi=300 fontname=Helvetica margin=0.3 nodesep=0.35 rankdir=TB ranksep=0.50 size="6,10!"
+	node [color=black fillcolor=white fontname=Helvetica fontsize=11 height=0 margin="0.18,0.12" penwidth=1.2 shape=box style=rounded width=2.8]
+	edge [arrowsize=0.8 color=black penwidth=1.0]
+	loaded [label="Loaded sample
+N = 11,004"]
+	valid [label="Valid target
+N = 10,771"]
+	latent [label="Eligible (latent analysis)
+N = 8,714"]
+	train [label="Training set
+N = 6,971  (80%)"]
+	test [label="Test set
+N = 1,743  (20%)"]
+	exc_target [label="Excluded:
+missing target
+n = 233" color=grey40 fontcolor=grey30 fontsize=10 shape=box style="rounded,dashed" width=2.0]
+	exc_latent [label="Excluded:
+missing latent items
+n = 2,057" color=grey40 fontcolor=grey30 fontsize=10 shape=box style="rounded,dashed" width=2.0]
+	loaded -> valid
+	valid -> latent
+	valid -> train
+	valid -> test
+	loaded -> exc_target [color=grey50 style=dashed]
+	valid -> exc_latent [color=grey50 style=dashed]
+	{
+		rank=same
+		loaded
+		exc_target
+	}
+	{
+		rank=same
+		latent
+		exc_latent
+	}
+	{
+		rank=same
+		train
+		test
+	}
+}

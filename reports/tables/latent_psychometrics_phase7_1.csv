@@ -1,0 +1,14 @@
+metric,value
+N items in factor,7
+N (avg pairwise),"5,049"
+N (min pairwise),"4,175"
+N (any observed items),"6,971"
+N (complete cases),"3,378"
+Cronbach's alpha (complete cases),0.651
+Ordinal alpha (pairwise Spearman),0.672
+McDonald's omega,0.673
+KMO,0.722
+Bartlett p-value,0.00e+00
+Mean |loading|,0.475
+Min |loading|,0.352
+Max |loading|,0.585

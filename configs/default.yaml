@@ -1,0 +1,168 @@
+# ============================================================
+# W119 Capstone — Default Configuration
+# ============================================================
+# Single source of truth for all analysis parameters.
+# Every script/notebook should load this via src.config.
+
+# --- Survey design -----------------------------------------------------------
+survey:
+  name: "Pew Research Center American Trends Panel Wave 119"
+  wave: 119
+  field_start: "2022-12-12"
+  field_end: "2022-12-18"
+  n_total: 11004
+  n_removed_quality: 8          # Pew removed 8 respondents pre-weighting
+  mode: "Web (English and Spanish)"
+  weight_variable: "WEIGHT_W119"
+  form_split_variable: "FORM_W119"
+  # Pew already trims weights at 1st/99th percentile
+  weight_trimmed_by_pew: true
+
+# --- Target variable ----------------------------------------------------------
+target:
+  raw_column: "AIWRKH4_W119"
+  derived_column: "y_apply"
+  positive_code: 1.0            # "Yes, I would"
+  negative_code: 2.0            # "No, I would not"
+  refused_code: 99.0
+  # AIWRKH4 has NO "Not sure" option — only Yes / No / Refused
+
+# --- Feature sets (column names in raw data) ----------------------------------
+feature_sets:
+  core_attitudes:
+    - AIWRKH1_W119          # Awareness of AI in hiring (1=A lot, 2=A little, 3=Nothing)
+    - AIWRKH2_a_W119        # Favor/oppose AI reviewing apps (1=Favor, 2=Oppose, 9=Not sure)
+    - AIWRKH2_b_W119        # Favor/oppose AI making final decision
+    - AIWRKH3_a_W119        # AI better/worse: identifying qualified (1=Better,2=Worse,3=Same,9=NS)
+    - AIWRKH3_b_W119        # AI better/worse: treating all applicants same
+    - AIWRKH3_c_W119        # AI better/worse: seeing potential beyond job desc
+    - AIWRKH3_d_W119        # AI better/worse: coworker fit
+    - HIREBIAS1_W119        # Bias problem in hiring (1=Major, 2=Minor, 3=Not a problem)
+    - HIREBIAS2_W119        # Would AI make bias better/worse (1=Def better … 5=Def worse)
+
+  knowledge_ai_orientation:
+    - AIKNOW_INDEX_W119     # AI knowledge score (0–6 correct)
+    - AI_HEARD_W119         # Heard about AI (1=A lot, 2=A little, 3=Nothing)
+    - CNCEXC_W119           # Excited vs concerned about AI
+    - USEAI_W119            # Frequency of AI interaction
+
+  demographics:
+    - F_AGECAT              # Age category (1=18-29, 2=30-49, 3=50-64, 4=65+)
+    - F_GENDER              # Gender (1=Man, 2=Woman, 3=Other)
+    - F_EDUCCAT2            # Education 6-way
+    - F_RACETHNMOD          # Race/ethnicity 5-way
+    - F_PARTY_FINAL         # Party affiliation
+    - F_INC_TIER2           # Income tier (Lower/Middle/Upper)
+
+  employment_context:
+    - EMPLSIT_W119          # Work situation (6 categories)
+    - JOBAPPYR_W119         # Applied for job past 12 months (binary)
+    - INDUSTRYCOMBO_W119    # Industry (12 categories, ~41% NaN among non-workers)
+
+# --- Readable names for features (raw → display) -----------------------------
+feature_labels:
+  AIWRKH1_W119: "awareness_ai_hiring"
+  AIWRKH2_a_W119: "favor_ai_review_apps"
+  AIWRKH2_b_W119: "favor_ai_final_decision"
+  AIWRKH3_a_W119: "ai_vs_human_identify_qualified"
+  AIWRKH3_b_W119: "ai_vs_human_treat_same"
+  AIWRKH3_c_W119: "ai_vs_human_see_potential"
+  AIWRKH3_d_W119: "ai_vs_human_coworker_fit"
+  HIREBIAS1_W119: "hiring_bias_problem"
+  HIREBIAS2_W119: "ai_bias_hiring_change"
+  AIKNOW_INDEX_W119: "ai_knowledge_score"
+  AI_HEARD_W119: "heard_about_ai"
+  CNCEXC_W119: "ai_excited_vs_concerned"
+  USEAI_W119: "ai_interaction_frequency"
+  F_AGECAT: "age_category"
+  F_GENDER: "gender"
+  F_EDUCCAT2: "education"
+  F_RACETHNMOD: "race_ethnicity"
+  F_PARTY_FINAL: "party_affiliation"
+  F_INC_TIER2: "income_tier"
+  EMPLSIT_W119: "employment_status"
+  JOBAPPYR_W119: "applied_job_past_year"
+  INDUSTRYCOMBO_W119: "industry"
+
+# --- Skip patterns (variables only asked to eligible subsets) -----------------
+skip_patterns:
+  HIREBIAS2_W119:
+    filter_var: "HIREBIAS1_W119"
+    filter_values: [1.0, 2.0]         # only asked if bias is "major" or "minor" problem
+    eligible_n: 8911
+  EVALBIAS2_W119:
+    filter_var: "EVALBIAS1_W119"
+    filter_values: [1.0, 2.0]
+    eligible_n: 8371
+  INDUSTRYCOMBO_W119:
+    filter_var: "EMPLSIT_W119"
+    filter_values: [1.0, 2.0]          # only asked if working full-time or part-time
+    eligible_n: 6497
+
+# --- "Not sure" handling (code 9, distinct from Refused=99) -------------------
+not_sure:
+  code: 9
+  # Variables that have "Not sure" (code 9) as a valid response:
+  variables_with_not_sure:
+    - AIWRKH2_a_W119
+    - AIWRKH2_b_W119
+    - AIWRKH3_a_W119
+    - AIWRKH3_b_W119
+    - AIWRKH3_c_W119
+    - AIWRKH3_d_W119
+  # Treatment options: "drop" | "own_category" | "midpoint"
+  default_treatment: "own_category"
+
+# --- Variable encoding --------------------------------------------------------
+encoding:
+  # Ordinal variables: keep numeric codes, order is meaningful
+  ordinal:
+    AIWRKH1_W119: [1, 2, 3]                       # A lot -> Nothing (higher = less aware)
+    AIWRKH2_a_W119: [1, 9, 2]                     # Favor, Not sure, Oppose
+    AIWRKH2_b_W119: [1, 9, 2]                     # Favor, Not sure, Oppose
+    AIWRKH3_a_W119: [1, 3, 9, 2]                  # Better, Same, Not sure, Worse
+    AIWRKH3_b_W119: [1, 3, 9, 2]
+    AIWRKH3_c_W119: [1, 3, 9, 2]
+    AIWRKH3_d_W119: [1, 3, 9, 2]
+    HIREBIAS1_W119: [1, 2, 3]                     # Major, Minor, Not a problem
+    HIREBIAS2_W119: [1, 2, 3, 4, 5]               # Def better -> Def worse
+    AI_HEARD_W119: [1, 2, 3]                      # A lot -> Nothing
+    CNCEXC_W119: [1, 3, 2]                        # Excited, Equal, Concerned
+    USEAI_W119: [1, 2, 3, 4, 5]                   # Almost constantly -> Less often
+    EMPLSIT_W119: [1, 2, 3, 4, 5]                 # Full-time -> Retired
+    F_AGECAT: [1, 2, 3, 4]                        # 18-29 -> 65+
+    F_EDUCCAT2: [1, 2, 3, 4, 5, 6]                # Less than HS -> Postgrad
+    F_INC_TIER2: [1, 2, 3]                        # Lower, Middle, Upper
+
+  # Numeric (continuous / index): use as-is
+  numeric:
+    - AIKNOW_INDEX_W119                            # 0-6 score
+
+  # Nominal (unordered): one-hot encode
+  nominal:
+    - F_GENDER                                     # Man, Woman, Other
+    - F_RACETHNMOD                                 # White, Black, Hispanic, Asian, Other
+    - F_PARTY_FINAL                                # Rep, Dem, Ind, Other
+    - JOBAPPYR_W119                                # Yes/No (binary, but nominal)
+    - INDUSTRYCOMBO_W119                           # 12 industry categories
+
+# --- Missingness policy -------------------------------------------------------
+missingness:
+  refused_code: 99
+  # Regime: "listwise" | "impute_indicator" | "multiple_imputation"
+  default_regime: "listwise"
+
+# --- Modeling -----------------------------------------------------------------
+modeling:
+  random_seed: 42
+  test_size: 0.2
+  cv_folds: 5
+  default_threshold: 0.5
+  class_weight: null            # null or "balanced"
+
+# --- Outputs ------------------------------------------------------------------
+outputs:
+  reports_dir: "reports"
+  figures_dir: "reports/figures"
+  tables_dir: "reports/tables"
+  model_cards_dir: "reports/model_cards"

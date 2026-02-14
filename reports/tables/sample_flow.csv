@@ -1,0 +1,6 @@
+stage,N,note
+Raw loaded,11004,Full ATP W119 sample
+Valid target,10771,Excluded 233 Refused (code 99)
+"Listwise (full, own_category)",4798,55% data loss
+"Impute+indicator (full, own_category)",10771,Near-full retention
+"Listwise (full, NS=drop)",2626,76% data loss

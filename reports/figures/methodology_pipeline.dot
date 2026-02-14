@@ -1,0 +1,45 @@
+digraph methodology_pipeline {
+	bgcolor=white dpi=300 fontname=Helvetica margin=0.2 nodesep=0.3 rankdir=LR ranksep=0.45 ratio=compress size="18,4!"
+	node [color="#4A7FB5" fillcolor="#EAF2FA" fontname=Helvetica fontsize=10 height=0 margin="0.15,0.10" penwidth=1.5 shape=box style="rounded,filled" width=0]
+	edge [arrowsize=0.7 color="#4A7FB5" penwidth=1.2]
+	raw [label="Raw Pew ATP W119
+SPSS (.sav)" color="#2B5D8A" fillcolor="#D6E9F8" fontcolor="#1A3A5C"]
+	audit [label="Load + Audit
+(30/30 validated)"]
+	vars [label="Variable Construction
+Target + 4 Feature Sets"]
+	preproc [label="Preprocessing
+Encoding + Skip Patterns"]
+	missing [label="Missingness:
+Impute+Indicators;
+Not sure = Own category"]
+	split [label="Train/Test Split
+(80/20, stratified, seed=42)"]
+	models [label="Models
+Weighted Logistic Reg.
++ HistGradientBoosting"]
+	eval [label="Evaluation: AUC, PR-AUC,
+Brier, ECE; Thresholds"]
+	subgroup [label="Subgroups:
+TPR/FPR + Calibration"]
+	robust [label="Robustness: Recoding,
+Not sure, Weights,
+Seeds, Skip-patterns"]
+	latent [label="Latent Attitude
+Ordinal Factor Analysis
++ Matched Comparison"]
+	outputs [label="Outputs: Reports, Tables,
+Figures, Model Cards,
+Metadata" color="#3A7D44" fillcolor="#D5EDDB" fontcolor="#1F4D27"]
+	raw -> audit
+	audit -> vars
+	vars -> preproc
+	preproc -> missing
+	missing -> split
+	split -> models
+	models -> eval
+	eval -> subgroup
+	subgroup -> robust
+	robust -> latent
+	latent -> outputs
+}
